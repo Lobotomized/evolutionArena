@@ -1,0 +1,19 @@
+<div class="container">
+
+
+
+    <div class="enemy innerContainer">
+        <app-card (click)="cardClick(board.enemyCards.cardOne)" class="card" [properties]="board.enemyCards.cardOne"></app-card>
+        <app-card (click)="cardClick(board.enemyCards.cardTwo)" class="card" [properties]="board.enemyCards.cardTwo"></app-card>
+        <app-card (click)="cardClick(board.enemyCards.cardThree)" class="card" [properties]="board.enemyCards.cardThree"></app-card>
+    </div>
+
+    <div class="center"></div>
+    <div class="player innerContainer">
+        <app-card (click)="cardClick(board.playerCards.cardOne)" class="card" [properties]="board.playerCards.cardOne"></app-card>
+        <app-card (click)="cardClick(board.playerCards.cardTwo)" class="card" [properties]="board.playerCards.cardTwo"></app-card>
+        <app-card (click)="cardClick(board.enemyCards.cardThree)" class="card" [properties]="board.playerCards.cardThree"></app-card>
+    </div>
+
+
+</div>

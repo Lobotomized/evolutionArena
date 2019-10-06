@@ -1,0 +1,65 @@
+.container{
+    border:black solid;
+    width:100%;
+    height:240px;
+
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(5, 40px) auto;
+
+
+    .special{ 
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+
+    .props{
+        grid-row: span 1;
+        grid-column: span 1;
+    }
+
+
+    .image{
+        grid-row: span 4;
+        grid-column: span 2;
+        object-fit: cover;
+        width: 100%;
+        height: 100%;
+    }
+
+    p{
+        padding:0;
+        margin:0;
+        border-top:black solid;
+    }
+
+    
+    .border-right{
+        border-right:solid black;
+    }
+
+    .border-left{
+        border-left:solid black;
+    }
+}
+
+.empty{
+    border:black solid;
+    width:100%;
+    height:240px;
+
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(6, 40px);
+
+    background:#D69D3A;
+}
+
+
+.bgDefault{
+    background:#D69D3A;
+}
+
+.bgActive{
+    background: #cff486;
+}

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { Card, CardFactory } from '../interfaces/card';
 import { Board } from '../interfaces/board';
-import { isDefaultChangeDetectionStrategy } from '@angular/core/src/change_detection/constants';
+import { findComponentView } from '@angular/core/src/render3/util';
+import { CardComponent } from '../card/card.component';
 
 @Component({
   selector: 'app-board',
@@ -52,6 +53,7 @@ export class BoardComponent implements OnInit {
     if (attacker.beforeAttack) {
       attacker.beforeAttack(defender);
     }
+
     defender.takeDamage(attacker.attack, attacker);
     this.checkDeath();
     this.changeTurn.next();
@@ -129,14 +131,17 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  cardClick(defender: Card) {
+  async cardClick(defender: Card,component:CardComponent) {
     const attacker = this.getActiveCard();
     const yourTurn = Object.keys(this.board.playerCards).find((card) => {
       return this.board.playerCards[card] === attacker;
     });
-
+    
     if (yourTurn) {
       this.attack(attacker, defender);
+
+      await component.attackedAnimation();
+      console.log(this.board)
     }
   }
 

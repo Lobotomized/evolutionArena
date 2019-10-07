@@ -3,16 +3,16 @@
 
 
     <div class="enemy innerContainer">
-        <app-card (click)="cardClick(board.enemyCards.cardOne)" class="card" [properties]="board.enemyCards.cardOne"></app-card>
-        <app-card (click)="cardClick(board.enemyCards.cardTwo)" class="card" [properties]="board.enemyCards.cardTwo"></app-card>
-        <app-card (click)="cardClick(board.enemyCards.cardThree)" class="card" [properties]="board.enemyCards.cardThree"></app-card>
+        <app-card #cardOneEnemy (click)="cardClick(board.enemyCards.cardOne, cardOneEnemy)" class="card" [properties]="board.enemyCards.cardOne"></app-card>
+        <app-card #cardTwoEnemy (click)="cardClick(board.enemyCards.cardTwo,cardTwoEnemy)" class="card" [properties]="board.enemyCards.cardTwo"></app-card>
+        <app-card #cardThreeEnemy (click)="cardClick(board.enemyCards.cardThree,cardThreeEnemy)" class="card" [properties]="board.enemyCards.cardThree"></app-card>
     </div>
 
     <div class="center"></div>
     <div class="player innerContainer">
-        <app-card (click)="cardClick(board.playerCards.cardOne)" class="card" [properties]="board.playerCards.cardOne"></app-card>
-        <app-card (click)="cardClick(board.playerCards.cardTwo)" class="card" [properties]="board.playerCards.cardTwo"></app-card>
-        <app-card (click)="cardClick(board.enemyCards.cardThree)" class="card" [properties]="board.playerCards.cardThree"></app-card>
+        <app-card #cardOnePlayer (click)="cardClick(board.playerCards.cardOne,cardOnePlayer)" class="card" [properties]="board.playerCards.cardOne"></app-card>
+        <app-card #cardTwoPlayer (click)="cardClick(board.playerCards.cardTwo,cardTwoPlayer)" class="card" [properties]="board.playerCards.cardTwo"></app-card>
+        <app-card #cardThreePlayer (click)="cardClick(board.enemyCards.cardThree,cardThreePlayer)" class="card" [properties]="board.playerCards.cardThree"></app-card>
     </div>
 
 

@@ -1,7 +1,6 @@
 
-<div *ngIf="properties" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn }" class="container">
+<div  [@attacked]='state' *ngIf="properties" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn }" class="container">
     
-
 
     <img src="../../assets/images/{{properties.image}}.jpg" class="image" alt="">
 

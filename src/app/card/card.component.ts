@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-
+import {delay} from '../helpers/delay';
 @Component({
   selector: 'app-card',
   templateUrl: './card.component.html',
@@ -8,6 +8,7 @@ import { Component, OnInit, Input } from '@angular/core';
 export class CardComponent implements OnInit {
   @Input() properties = null;
   state = 'normal';
+
   constructor() {
   }
 
@@ -44,7 +45,7 @@ export class CardComponent implements OnInit {
   // tslint:disable-next-line: no-shadowed-variable
   async stateChange(state: string) {
     this.state = state;
-    await this.delay(500);
+    await delay(500);
     this.state = 'normal';
 
     return new Promise((resolve, reject) => {
@@ -55,7 +56,5 @@ export class CardComponent implements OnInit {
   ngOnInit() {
   }
 
-  private delay(ms: number) {
-    return new Promise( resolve => setTimeout(resolve, ms) );
-  }
+
 }

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Card, CardFactory } from '../interfaces/card';
 import { Board } from '../interfaces/board';
 import { CardComponent } from '../card/card.component';
+import { delay } from '../helpers/delay';
 
 
 
@@ -28,7 +29,6 @@ export class BoardComponent implements OnInit {
   changeTurn: any;
 
   constructor() {
-
     const card: Card  = CardFactory();
     const cardEvil: Card  = CardFactory();
     this.addPlayerCard(card, 'cardOne');
@@ -51,10 +51,10 @@ export class BoardComponent implements OnInit {
     this.board.playerCards[position] = {};
   }
 
-  private attack(attacker: Card, defender: Card) {
-
-    if (attacker.beforeAttack) {
-      attacker.beforeAttack(defender);
+  private attack(attacker: Card, defender: Card, miss?: boolean ) {
+    if (miss) {
+       this.changeTurn.next();
+       return;
     }
 
     defender.takeDamage(attacker.attack, attacker);
@@ -70,7 +70,6 @@ export class BoardComponent implements OnInit {
         }
       });
     }
-
   }
 
 
@@ -84,7 +83,6 @@ export class BoardComponent implements OnInit {
           this.board.playerCards[card].onTurn = true;
           yield;
         }
-
       }
     }
 
@@ -116,6 +114,7 @@ export class BoardComponent implements OnInit {
   }
 
   private getActiveCard() {
+
     for (const card of Object.keys(this.board.playerCards)) {
       if (this.board.playerCards[card]) {
         if (this.board.playerCards[card].onTurn) {
@@ -134,17 +133,69 @@ export class BoardComponent implements OnInit {
     }
   }
 
+  private async playTurn(component: CardComponent, attacker: Card, defender: Card) {
+    const random = Math.random();
+    if (random >= defender.defense / 100) {
+      await component.attackedAnimation(() => {this.attack(attacker, defender); });
+    } else {
+      await component.missAnimation(() => {this.attack(attacker, defender, true); });
+    }
+    this.AI(component);
+
+  }
+
+  private activeTeam() {
+    const found = Object.keys(this.board.enemyCards).find((enemy) =>{
+      if (this.board.enemyCards[enemy]) {
+        return this.board.enemyCards[enemy].onTurn;
+
+      }
+    });
+    if (found) {
+      return 'enemy';
+    } else {
+      return 'player';
+    }
+  }
+  private async AI(component: CardComponent) {
+    await delay(500);
+    const attacker = this.getActiveCard();
+    const yourTurn = Object.keys(this.board.enemyCards).find((card) => {
+      return this.board.enemyCards[card] === attacker;
+    });
+
+
+    if  (yourTurn)  {
+      if (this.board.playerCards.cardOne) {
+        this.playTurn(component, attacker, this.board.playerCards.cardOne);
+        this.changeTurn.next();
+        return;
+      }
+      if (this.board.playerCards.cardTwo) {
+        this.playTurn(component, attacker, this.board.playerCards.cardTwo);
+        this.changeTurn.next();
+        return;
+      }
+      if (this.board.playerCards.cardThree) {
+        this.playTurn(component, attacker, this.board.playerCards.cardThree);
+        this.changeTurn.next();
+        return;
+      }
+    }
+
+  }
+
 
   // Public Methods
 
-  async cardClick(defender: Card, component: CardComponent) {
+  cardClick(defender: Card, component: CardComponent) {
     const attacker = this.getActiveCard();
     const yourTurn = Object.keys(this.board.playerCards).find((card) => {
       return this.board.playerCards[card] === attacker;
     });
 
     if (yourTurn) {
-      await component.attackedAnimation(() => {this.attack(attacker, defender); });
+      this.playTurn(component, attacker, defender);
     }
   }
 

@@ -138,9 +138,9 @@ export class BoardComponent implements OnInit {
     });
     
     if (yourTurn) {
-      this.attack(attacker, defender);
+      await component.attackedAnimation(() => {this.attack(attacker,defender)});
 
-      await component.attackedAnimation();
+      
       console.log(this.board)
     }
   }

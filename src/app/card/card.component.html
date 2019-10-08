@@ -1,10 +1,11 @@
 
-<div  [@attacked]='state' *ngIf="properties" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn }" class="container">
+<div  [@attacked]='state' [@missed]='state' *ngIf="properties" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn }" class="container">
     
-
+    
     <img src="../../assets/images/{{properties.image}}.jpg" class="image" alt="">
 
     <div class="props">
+            
         <span >Attack : {{properties.attack}}</span> <br> <span >Defense : {{properties.health}}</span>
     </div>
     
@@ -12,6 +13,11 @@
         <span>Hp : {{properties.attack}}</span> <br> <span>Rest : {{properties.restCurrent}} / {{properties.restMax}}</span>
     </div>
     <p class="special">lorem </p>
+
+
+    <h1 [@missedText]='state' class="doubleColumn props dn">Miss</h1>
+        
+    
 
 </div>  
 

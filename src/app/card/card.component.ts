@@ -1,72 +1,55 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { transition, state, trigger, style, animate,keyframes } from '@angular/animations';
 
 @Component({
   selector: 'app-card',
   templateUrl: './card.component.html',
-  styleUrls: ['./card.component.less'],
-  animations: [
-    trigger('attacked', [
-      state('normal', style({
-      })),
-      state('attacked', style({
-        background:'red',
-        border:'red',
-        color:'red'
-      })),
-      transition('normal => attacked', animate('500ms')),
-      transition('attacked => normal', animate('500ms'))
-    ]),
-    trigger('missed', [
-      state('normal', style({
-      })),
-      state('missed', style({
-        background:'yellow',
-        border:'yellow',
-        color:'yellow'
-      })),
-      transition('normal => missed', animate('500ms')),
-      transition('missed => normal', animate('500ms'))
-    ]),
-    
-    trigger('missedText', [
-      state('normal', style({
-      })),
-      state('missedText', style({
-        color:"blue"
-      })),
-      transition('normal => missedText', animate('500ms')),
-      transition('missedText => normal', animate('500ms'))
-    ])
-  ]
+  styleUrls: ['./card.component.less']
 })
 export class CardComponent implements OnInit {
   @Input() properties = null;
-  state: string = 'normal';
+  state = 'normal';
   constructor() {
   }
 
-  attackedAnimation(cb){
-    this.stateChange('missedText')
-
-    this.stateChange('attacked').then(() =>{
-      cb()
-    })
-  }
-  
-  missAnimation(){
-    this.stateChange('missedText')
-    this.stateChange('missed')
+  attackedAnimation(cb) {
+    this.stateChange('damage').then(() => {
+      cb();
+    });
   }
 
-  async stateChange(state:string){
+  missAnimation(cb) {
+    this.stateChange('miss').then(() => {
+      cb();
+    });
+  }
+
+  buffAnimation(cb) {
+    this.stateChange('buff').then(() => {
+      cb();
+    });
+  }
+
+  healAnimation(cb) {
+    this.stateChange('heal').then(() => {
+      cb();
+    });
+  }
+
+  curseAnimation(cb) {
+    this.stateChange('curse').then(() => {
+      cb();
+    });
+  }
+
+  // tslint:disable-next-line: no-shadowed-variable
+  async stateChange(state: string) {
     this.state = state;
-    await this.delay(500)
-    this.state = 'normal'
+    await this.delay(500);
+    this.state = 'normal';
 
     return new Promise((resolve, reject) => {
       resolve();
-    })
+    });
   }
 
   ngOnInit() {

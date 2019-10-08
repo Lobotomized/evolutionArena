@@ -1,11 +1,11 @@
 
-<div  [@attacked]='state' [@missed]='state' *ngIf="properties" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn }" class="container">
+<div *ngIf="properties && state === 'normal'" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn }" class="container">
     
-    
+
+
     <img src="../../assets/images/{{properties.image}}.jpg" class="image" alt="">
 
     <div class="props">
-            
         <span >Attack : {{properties.attack}}</span> <br> <span >Defense : {{properties.health}}</span>
     </div>
     
@@ -14,12 +14,28 @@
     </div>
     <p class="special">lorem </p>
 
+</div>
 
-    <h1 [@missedText]='state' class="doubleColumn props dn">Miss</h1>
-        
-    
+<div *ngIf="properties && state === 'damage'" style="background-color:red" class="effectContainer container">
+                        <h1>Damaged</h1>
+</div>
 
-</div>  
+<div *ngIf="properties && state === 'miss'" style="background-color:yellow" class="effectContainer container">
+    <h1>Missed</h1>
+</div>
+
+<div *ngIf="properties && state === 'heal'" style="background-color:lightgreen" class="effectContainer container">
+    <h1>Healed</h1>
+</div>
+
+<div *ngIf="properties && state === 'buff'" style="background-color:lightblue" class="effectContainer container">
+    <h1>Buffed</h1>
+</div>
+
+<div *ngIf="properties && state === 'curse'" style="background-color: rebeccapurple" class="effectContainer container">
+    <h1>Cursed</h1>
+</div>
+
 
 <div *ngIf="!properties" class="empty">
     

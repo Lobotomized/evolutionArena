@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Card, CardFactory } from '../interfaces/card';
 import { Board } from '../interfaces/board';
-import { findComponentView } from '@angular/core/src/render3/util';
 import { CardComponent } from '../card/card.component';
+
+
 
 @Component({
   selector: 'app-board',
@@ -27,6 +28,7 @@ export class BoardComponent implements OnInit {
   changeTurn: any;
 
   constructor() {
+
     const card: Card  = CardFactory();
     const cardEvil: Card  = CardFactory();
     this.addPlayerCard(card, 'cardOne');
@@ -50,6 +52,7 @@ export class BoardComponent implements OnInit {
   }
 
   private attack(attacker: Card, defender: Card) {
+
     if (attacker.beforeAttack) {
       attacker.beforeAttack(defender);
     }
@@ -131,19 +134,20 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  async cardClick(defender: Card,component:CardComponent) {
+
+  // Public Methods
+
+  async cardClick(defender: Card, component: CardComponent) {
     const attacker = this.getActiveCard();
     const yourTurn = Object.keys(this.board.playerCards).find((card) => {
       return this.board.playerCards[card] === attacker;
     });
-    
-    if (yourTurn) {
-      await component.attackedAnimation(() => {this.attack(attacker,defender)});
 
-      
-      console.log(this.board)
+    if (yourTurn) {
+      await component.attackedAnimation(() => {this.attack(attacker, defender); });
     }
   }
+
 
   ngOnInit() {
   }

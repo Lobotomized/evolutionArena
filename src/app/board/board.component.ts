@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
 import { Card, CardFactory } from '../interfaces/card';
 import { Board } from '../interfaces/board';
 import { CardComponent } from '../card/card.component';
@@ -11,7 +11,11 @@ import { delay } from '../helpers/delay';
   templateUrl: './board.component.html',
   styleUrls: ['./board.component.less']
 })
+
+
+
 export class BoardComponent implements OnInit {
+  @ViewChild('cardOnePlayer') cardOnePlayer: CardComponent;
 
   board: Board = {
     playerCards: {
@@ -94,9 +98,10 @@ export class BoardComponent implements OnInit {
           this.board.enemyCards[card].onTurn = true;
           yield;
         }
-
       }
     }
+
+    this.changeTurn = this.giveTurn();
   }
 
   private makeInactive() {
@@ -140,7 +145,7 @@ export class BoardComponent implements OnInit {
     } else {
       await component.missAnimation(() => {this.attack(attacker, defender, true); });
     }
-    this.AI(component);
+    this.AI();
 
   }
 
@@ -157,8 +162,11 @@ export class BoardComponent implements OnInit {
       return 'player';
     }
   }
-  private async AI(component: CardComponent) {
-    await delay(500);
+  private async AI() {
+    //FIX LATER
+
+    const component = this.cardOnePlayer;
+    await delay(3000);
     const attacker = this.getActiveCard();
     const yourTurn = Object.keys(this.board.enemyCards).find((card) => {
       return this.board.enemyCards[card] === attacker;
@@ -167,7 +175,7 @@ export class BoardComponent implements OnInit {
 
     if  (yourTurn)  {
       if (this.board.playerCards.cardOne) {
-        this.playTurn(component, attacker, this.board.playerCards.cardOne);
+        this.playTurn(component,  attacker, this.board.playerCards.cardOne);
         this.changeTurn.next();
         return;
       }

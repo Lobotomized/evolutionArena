@@ -125,7 +125,6 @@ export class BoardComponent implements OnInit {
     }
 
     if (Object.keys(this.board.enemyCards)) {
-
       for (let card of Object.keys(this.board.enemyCards)) {
         if (this.board.enemyCards[card]) {
           this.makeInactive();
@@ -137,7 +136,7 @@ export class BoardComponent implements OnInit {
       }
     }
     this.changeTurn = this.giveTurn();
-    yield;
+    //yield;
     
   }
 

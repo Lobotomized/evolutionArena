@@ -16,6 +16,14 @@ import { delay } from '../helpers/delay';
 
 export class BoardComponent implements OnInit {
   @ViewChild('cardOnePlayer') cardOnePlayer: CardComponent;
+  @ViewChild('cardTwoPlayer') cardTwoPlayer: CardComponent;
+  @ViewChild('cardThreePlayer') cardThreePlayer: CardComponent;
+
+
+  @ViewChild('cardOneEnemy') cardOneEnemy: CardComponent;
+  @ViewChild('cardTwoEnemy') cardTwoEnemy: CardComponent;
+  @ViewChild('cardThreeEnemy') cardThreeEnemy: CardComponent;
+
 
   board: Board = {
     playerCards: {
@@ -34,9 +42,13 @@ export class BoardComponent implements OnInit {
 
   constructor() {
     const card: Card  = CardFactory();
+    const cardTwo: Card  = CardFactory();
     const cardEvil: Card  = CardFactory();
+    const cardEvilTwo: Card  = CardFactory();
     this.addPlayerCard(card, 'cardOne');
+    this.addPlayerCard(cardTwo, 'cardTwo');
     this.addEnemyCard(cardEvil, 'cardOne');
+    this.addEnemyCard(cardEvilTwo, 'cardTwo');
     this.changeTurn = this.giveTurn();
     this.changeTurn.next();
   }
@@ -84,6 +96,7 @@ export class BoardComponent implements OnInit {
       for (const card of Object.keys(this.board.playerCards)) {
         if (this.board.playerCards[card]) {
           this.makeInactive();
+          console.log(card)
           this.board.playerCards[card].onTurn = true;
           yield;
         }
@@ -100,7 +113,7 @@ export class BoardComponent implements OnInit {
         }
       }
     }
-
+    yield;
     this.changeTurn = this.giveTurn();
   }
 
@@ -153,7 +166,6 @@ export class BoardComponent implements OnInit {
     const found = Object.keys(this.board.enemyCards).find((enemy) =>{
       if (this.board.enemyCards[enemy]) {
         return this.board.enemyCards[enemy].onTurn;
-
       }
     });
     if (found) {
@@ -163,9 +175,8 @@ export class BoardComponent implements OnInit {
     }
   }
   private async AI() {
-    //FIX LATER
+    //Repeated Code to be fixed
 
-    const component = this.cardOnePlayer;
     await delay(3000);
     const attacker = this.getActiveCard();
     const yourTurn = Object.keys(this.board.enemyCards).find((card) => {
@@ -175,17 +186,22 @@ export class BoardComponent implements OnInit {
 
     if  (yourTurn)  {
       if (this.board.playerCards.cardOne) {
-        this.playTurn(component,  attacker, this.board.playerCards.cardOne);
+        const componentToAttack = this.cardOnePlayer;
+
+        this.playTurn(componentToAttack,  attacker, this.board.playerCards.cardOne);
         this.changeTurn.next();
         return;
       }
       if (this.board.playerCards.cardTwo) {
-        this.playTurn(component, attacker, this.board.playerCards.cardTwo);
+        const componentToAttack = this.cardTwoPlayer;
+
+        this.playTurn(componentToAttack, attacker, this.board.playerCards.cardTwo);
         this.changeTurn.next();
         return;
       }
       if (this.board.playerCards.cardThree) {
-        this.playTurn(component, attacker, this.board.playerCards.cardThree);
+        const componentToAttack = this.cardThreePlayer;
+        this.playTurn(componentToAttack , attacker, this.board.playerCards.cardThree);
         this.changeTurn.next();
         return;
       }

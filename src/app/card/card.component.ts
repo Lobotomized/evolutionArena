@@ -18,6 +18,13 @@ export class CardComponent implements OnInit {
     });
   }
 
+  restAnimation(cb) {
+    console.log('vliza')
+    this.stateChange('rest').then(() => {
+      cb();
+    });
+  }
+
   missAnimation(cb) {
     this.stateChange('miss').then(() => {
       cb();

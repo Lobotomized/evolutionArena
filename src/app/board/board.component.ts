@@ -16,6 +16,14 @@ import { delay } from '../helpers/delay';
 
 export class BoardComponent implements OnInit {
   @ViewChild('cardOnePlayer') cardOnePlayer: CardComponent;
+  @ViewChild('cardTwoPlayer') cardTwoPlayer: CardComponent;
+  @ViewChild('cardThreePlayer') cardThreePlayer: CardComponent;
+
+
+  @ViewChild('cardOneEnemy') cardOneEnemy: CardComponent;
+  @ViewChild('cardTwoEnemy') cardTwoEnemy: CardComponent;
+  @ViewChild('cardThreeEnemy') cardThreeEnemy: CardComponent;
+
 
   board: Board = {
     playerCards: {
@@ -31,12 +39,17 @@ export class BoardComponent implements OnInit {
   };
 
   changeTurn: any;
+  openForClicks = true;
 
   constructor() {
     const card: Card  = CardFactory();
+    const cardTwo: Card  = CardFactory();
     const cardEvil: Card  = CardFactory();
+    const cardEvilTwo: Card  = CardFactory();
     this.addPlayerCard(card, 'cardOne');
+    this.addPlayerCard(cardTwo, 'cardTwo');
     this.addEnemyCard(cardEvil, 'cardOne');
+    this.addEnemyCard(cardEvilTwo, 'cardTwo');
     this.changeTurn = this.giveTurn();
     this.changeTurn.next();
   }
@@ -51,26 +64,45 @@ export class BoardComponent implements OnInit {
     this.checkDeath();
   }
 
-  private removePlayerCard(position: string) {
-    this.board.playerCards[position] = {};
+  private removeCard(position: string, enemy: boolean) {
+    if (enemy) {
+      this.board.enemyCards[position] = null;
+    } else {
+      this.board.playerCards[position] = null;
+    }
   }
+
 
   private attack(attacker: Card, defender: Card, miss?: boolean ) {
     if (miss) {
-       this.changeTurn.next();
        return;
     }
-
+    attacker.restCurrent = 0;
     defender.takeDamage(attacker.attack, attacker);
     this.checkDeath();
-    this.changeTurn.next();
+  }
+
+  private rest(attacker: Card) {
+    attacker.restCurrent++;
   }
 
   private checkDeath() {
-    if (Object(this.board.playerCards).keys) {
-      Object(this.board.playerCards).keys.forEach((card) => {
-        if (card.health <= 0) {
-          card.die();
+    if (Object.keys(this.board.playerCards)) {
+      Object.keys(this.board.playerCards).forEach((card) => {
+        if (this.board.playerCards[card]) {
+          if (this.board.playerCards[card].health <= 0) {
+            this.board.playerCards[card].die();
+          }
+        }
+      });
+    }
+
+    if (Object.keys(this.board.enemyCards)) {
+      Object.keys(this.board.enemyCards).forEach((card) => {
+        if (this.board.enemyCards[card]) {
+          if (this.board.enemyCards[card].health <= 0) {
+            this.board.enemyCards[card].die();
+          }
         }
       });
     }
@@ -82,26 +114,31 @@ export class BoardComponent implements OnInit {
   private *giveTurn() {
     if (Object.keys(this.board.playerCards)) {
       for (const card of Object.keys(this.board.playerCards)) {
-        if (this.board.playerCards[card]) {
+        const importantCard = this.board.playerCards[card];
+        if (importantCard) {
           this.makeInactive();
-          this.board.playerCards[card].onTurn = true;
-          yield;
+          if (!importantCard.death) {
+            importantCard.onTurn = true;
+            yield;
+          }
         }
       }
     }
-
     if (Object.keys(this.board.enemyCards)) {
-
       for (const card of Object.keys(this.board.enemyCards)) {
-        if (this.board.enemyCards[card]) {
+        const importantCard = this.board.enemyCards[card];
+
+        if (importantCard) {
           this.makeInactive();
-          this.board.enemyCards[card].onTurn = true;
-          yield;
+          if (!importantCard.death) {
+            importantCard.onTurn = true;
+            yield;
+          }
         }
       }
     }
 
-    this.changeTurn = this.giveTurn();
+    yield;
   }
 
   private makeInactive() {
@@ -138,57 +175,139 @@ export class BoardComponent implements OnInit {
     }
   }
 
-  private async playTurn(component: CardComponent, attacker: Card, defender: Card) {
-    const random = Math.random();
-    if (random >= defender.defense / 100) {
-      await component.attackedAnimation(() => {this.attack(attacker, defender); });
+  private async playTurn(component: CardComponent, attackerComponent: CardComponent, attacker: Card, defender: Card) {
+    const doneChecker =  await this.changeTurn.next();
+    if (!doneChecker.done) {
+      if (!attacker.death) {
+        if  (attacker.restCurrent >= attacker.restMax) {
+          const random = Math.random();
+          if (random >= defender.defense / 100) {
+            await component.attackedAnimation(() => { this.attack(attacker, defender); });
+          } else {
+            await component.missAnimation(() => { this.attack(attacker, defender, true); });
+          }
+        } else {
+          await attackerComponent.restAnimation(() => { this.rest(attacker); });
+        }
+
+        await this.AI();
+        await this.checkDeath();
+        return;
+      } else {
+        await this.AI();
+        await this.checkDeath();
+        return;
+      }
     } else {
-      await component.missAnimation(() => {this.attack(attacker, defender, true); });
+      this.changeTurn = await this.giveTurn();
+      await this.changeTurn.next();
+      return;
     }
-    this.AI();
 
   }
 
-  private activeTeam() {
-    const found = Object.keys(this.board.enemyCards).find((enemy) =>{
-      if (this.board.enemyCards[enemy]) {
-        return this.board.enemyCards[enemy].onTurn;
+  private getCardPosition(card: Card) {
 
+    if (this.board.enemyCards.cardOne === card) {
+      return {key: 'cardOne', player: false };
+    } else if (this.board.enemyCards.cardTwo === card) {
+      return {key: 'cardTwo', player: false };
+    } else if (this.board.enemyCards.cardThree === card) {
+      return {key: 'cardThree', player: false };
+    }
+
+    if (this.board.playerCards.cardOne === card) {
+      return {key: 'cardOne', player: true };
+    } else if (this.board.playerCards.cardTwo === card) {
+      return {key: 'cardTwo', player: true };
+    } else if (this.board.playerCards.cardThree === card) {
+      return {key: 'cardThree', player: true };
+    }
+
+    Object.keys(this.board.enemyCards).forEach((ec) => {
+      if (this.board.enemyCards[ec] === card) {
+        return {key: ec, player: false};
+      } else {
+        return {key: 'none', player: false};
       }
     });
-    if (found) {
-      return 'enemy';
-    } else {
-      return 'player';
+
+    Object.keys(this.board.playerCards).forEach((ec) => {
+      if (this.board.playerCards[ec] === card) {
+        return {key: ec, player: true};
+      } else {
+        return {key: 'none', player: true};
+      }
+    });
+    return {key: 'none', player: false};
+  }
+
+  private getComponentByCard(card: Card) {
+    const position = this.getCardPosition(card);
+    switch (position.key) {
+      case 'cardOne':
+        if (position.player) {
+          return this.cardOnePlayer;
+        } else {
+          return this.cardOneEnemy;
+        }
+      case 'cardTwo':
+          if (position.player) {
+            return this.cardTwoPlayer;
+          } else {
+            return this.cardTwoEnemy;
+          }
+      case 'cardThree':
+          if (position.player) {
+            return this.cardThreePlayer;
+          } else {
+            return this.cardThreeEnemy;
+          }
     }
   }
-  private async AI() {
-    //FIX LATER
 
-    const component = this.cardOnePlayer;
-    await delay(3000);
+  private async AI() {
+    //Repeated Code to be fixed
     const attacker = this.getActiveCard();
     const yourTurn = Object.keys(this.board.enemyCards).find((card) => {
-      return this.board.enemyCards[card] === attacker;
+      if (this.board.enemyCards[card] && !this.board.enemyCards[card].death) {
+        return this.board.enemyCards[card] === attacker;
+      }
     });
 
-
     if  (yourTurn)  {
+      await delay(1000);
+      const attackerComponent = this.getComponentByCard(attacker);
+
       if (this.board.playerCards.cardOne) {
-        this.playTurn(component,  attacker, this.board.playerCards.cardOne);
-        this.changeTurn.next();
-        return;
+        if (!this.board.playerCards.cardOne.death) {
+          const componentToAttack = this.cardOnePlayer;
+          await this.playTurn(componentToAttack, attackerComponent,  attacker, this.board.playerCards.cardOne);
+          return;
+        }
+
       }
       if (this.board.playerCards.cardTwo) {
-        this.playTurn(component, attacker, this.board.playerCards.cardTwo);
-        this.changeTurn.next();
-        return;
+        if (!this.board.playerCards.cardTwo.death) {
+          const componentToAttack = this.cardTwoPlayer;
+
+          await this.playTurn(componentToAttack, attackerComponent, attacker, this.board.playerCards.cardTwo);
+          return;
+        }
+
       }
       if (this.board.playerCards.cardThree) {
-        this.playTurn(component, attacker, this.board.playerCards.cardThree);
-        this.changeTurn.next();
-        return;
+        if (!this.board.playerCards.cardThree.death) {
+          const componentToAttack = this.cardThreePlayer;
+          await this.playTurn(componentToAttack, attackerComponent, attacker, this.board.playerCards.cardThree);
+          return;
+        }
+
       }
+
+      return;
+    } else {
+      return;
     }
 
   }
@@ -196,14 +315,20 @@ export class BoardComponent implements OnInit {
 
   // Public Methods
 
-  cardClick(defender: Card, component: CardComponent) {
-    const attacker = this.getActiveCard();
-    const yourTurn = Object.keys(this.board.playerCards).find((card) => {
-      return this.board.playerCards[card] === attacker;
-    });
+  cardClick(defender: Card, clickedComponent: CardComponent) {
+    if (this.openForClicks) {
+      const attacker = this.getActiveCard();
+      const yourTurn = Object.keys(this.board.playerCards).find((card) => {
+        return this.board.playerCards[card] === attacker;
+      });
+      this.openForClicks = false;
+      if (yourTurn) {
+        const attackerComponent = this.getComponentByCard(attacker);
 
-    if (yourTurn) {
-      this.playTurn(component, attacker, defender);
+        this.playTurn(clickedComponent, attackerComponent, attacker, defender).then(() => {
+          this.openForClicks = true;
+        });
+      }
     }
   }
 

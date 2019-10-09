@@ -96,7 +96,6 @@ export class BoardComponent implements OnInit {
       for (const card of Object.keys(this.board.playerCards)) {
         if (this.board.playerCards[card]) {
           this.makeInactive();
-          console.log(card)
           this.board.playerCards[card].onTurn = true;
           yield;
         }

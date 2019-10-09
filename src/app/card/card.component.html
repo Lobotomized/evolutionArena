@@ -1,42 +1,46 @@
 
-<div *ngIf="properties && state === 'normal'" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn }" class="container">
+<div *ngIf="properties && state === 'normal'" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn, 'bgDeath':properties.death }" class="container">
     
-
-
-    <img src="../../assets/images/{{properties.image}}.jpg" class="image" alt="">
-
-    <div class="props">
-        <span >Attack : {{properties.attack}}</span> <br> <span >Defense : {{properties.defense}}</span>
-    </div>
+        <img src="../../assets/images/{{properties.image}}.jpg" class="image" alt="">
     
-    <div class="border-left props">
-        <span>Hp : {{properties.health}}</span> <br> <span>Rest : {{properties.restCurrent}} / {{properties.restMax}}</span>
-    </div>
-    <p class="special">{{properties.special}} </p>
-
-</div>
-
-<div *ngIf="properties && state === 'damage'" style="background-color:red" class="effectContainer container">
-                        <h1>Damaged</h1>
-</div>
-
-<div *ngIf="properties && state === 'miss'" style="background-color:yellow" class="effectContainer container">
-    <h1>Missed</h1>
-</div>
-
-<div *ngIf="properties && state === 'heal'" style="background-color:lightgreen" class="effectContainer container">
-    <h1>Healed</h1>
-</div>
-
-<div *ngIf="properties && state === 'buff'" style="background-color:lightblue" class="effectContainer container">
-    <h1>Buffed</h1>
-</div>
-
-<div *ngIf="properties && state === 'curse'" style="background-color: rebeccapurple" class="effectContainer container">
-    <h1>Cursed</h1>
+        <div class="props">
+            <span >Attack : {{properties.attack}}</span> <br> <span >Defense : {{properties.defense}}</span>
+        </div>
+        
+        <div class="border-left props">
+            <span>Hp : {{properties.health}}</span> <br> <span>Rest : {{properties.restCurrent}} / {{properties.restMax}}</span>
+        </div>
+        <p class="special">{{properties.special}} </p>
+    
 </div>
 
 
 <div *ngIf="!properties" class="empty">
     
 </div>
+
+
+
+    
+
+    
+    <div *ngIf="properties && state === 'damage'" style="background-color:red" class="effectContainer container">
+                            <h1>Damaged</h1>
+    </div>
+    
+    <div *ngIf="properties && state === 'miss'" style="background-color:yellow" class="effectContainer container">
+        <h1>Missed</h1>
+    </div>
+    
+    <div *ngIf="properties && state === 'heal'" style="background-color:lightgreen" class="effectContainer container">
+        <h1>Healed</h1>
+    </div>
+    
+    <div *ngIf="properties && state === 'buff'" style="background-color:lightblue" class="effectContainer container">
+        <h1>Buffed</h1>
+    </div>
+    
+    <div *ngIf="properties && state === 'curse'" style="background-color: rebeccapurple" class="effectContainer container">
+        <h1>Cursed</h1>
+    </div>
+    

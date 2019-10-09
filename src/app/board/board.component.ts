@@ -63,26 +63,42 @@ export class BoardComponent implements OnInit {
     this.checkDeath();
   }
 
-  private removePlayerCard(position: string) {
-    this.board.playerCards[position] = {};
+  private removeCard(position: string, enemy:boolean) {
+    if(enemy){
+      this.board.enemyCards[position] = null
+    }
+    else{
+      this.board.playerCards[position] = null;
+    }
   }
+
 
   private attack(attacker: Card, defender: Card, miss?: boolean ) {
     if (miss) {
-       this.changeTurn.next();
        return;
     }
 
     defender.takeDamage(attacker.attack, attacker);
     this.checkDeath();
-    this.changeTurn.next();
   }
 
   private checkDeath() {
-    if (Object(this.board.playerCards).keys) {
-      Object(this.board.playerCards).keys.forEach((card) => {
-        if (card.health <= 0) {
-          card.die();
+    if (Object.keys(this.board.playerCards)) {
+      Object.keys(this.board.playerCards).forEach((card) => {
+        if(this.board.playerCards[card]){
+          if (this.board.playerCards[card].health <= 0) {
+            this.board.playerCards[card].die();
+          }
+        }
+      });
+    }
+
+    if (Object.keys(this.board.enemyCards)) {
+      Object.keys(this.board.enemyCards).forEach((card) => {
+        if(this.board.enemyCards[card]){
+          if (this.board.enemyCards[card].health <= 0) {
+            this.board.enemyCards[card].die();
+          }
         }
       });
     }
@@ -92,28 +108,37 @@ export class BoardComponent implements OnInit {
 
 
   private *giveTurn() {
+    console.log('otna4alo')
     if (Object.keys(this.board.playerCards)) {
-      for (const card of Object.keys(this.board.playerCards)) {
+      for (let card of Object.keys(this.board.playerCards)) {
         if (this.board.playerCards[card]) {
           this.makeInactive();
-          this.board.playerCards[card].onTurn = true;
-          yield;
+
+          if(!this.board.playerCards[card].death){
+            this.board.playerCards[card].onTurn = true;
+
+            yield;
+          }
+          
         }
       }
     }
 
     if (Object.keys(this.board.enemyCards)) {
 
-      for (const card of Object.keys(this.board.enemyCards)) {
+      for (let card of Object.keys(this.board.enemyCards)) {
         if (this.board.enemyCards[card]) {
           this.makeInactive();
-          this.board.enemyCards[card].onTurn = true;
-          yield;
+          if(!this.board.enemyCards[card].death){
+            this.board.enemyCards[card].onTurn = true;
+            yield;
+          }
         }
       }
     }
-    yield;
     this.changeTurn = this.giveTurn();
+    yield;
+    
   }
 
   private makeInactive() {
@@ -158,21 +183,11 @@ export class BoardComponent implements OnInit {
       await component.missAnimation(() => {this.attack(attacker, defender, true); });
     }
     this.AI();
-
+    this.checkDeath()
+    this.changeTurn.next();
   }
 
-  private activeTeam() {
-    const found = Object.keys(this.board.enemyCards).find((enemy) =>{
-      if (this.board.enemyCards[enemy]) {
-        return this.board.enemyCards[enemy].onTurn;
-      }
-    });
-    if (found) {
-      return 'enemy';
-    } else {
-      return 'player';
-    }
-  }
+
   private async AI() {
     //Repeated Code to be fixed
 
@@ -185,24 +200,30 @@ export class BoardComponent implements OnInit {
 
     if  (yourTurn)  {
       if (this.board.playerCards.cardOne) {
-        const componentToAttack = this.cardOnePlayer;
+        if(!this.board.playerCards.cardOne.death){
+          const componentToAttack = this.cardOnePlayer;
 
-        this.playTurn(componentToAttack,  attacker, this.board.playerCards.cardOne);
-        this.changeTurn.next();
-        return;
+          this.playTurn(componentToAttack,  attacker, this.board.playerCards.cardOne);
+          return;
+        }
+
       }
       if (this.board.playerCards.cardTwo) {
-        const componentToAttack = this.cardTwoPlayer;
+        if(!this.board.playerCards.cardTwo.death){
+          const componentToAttack = this.cardTwoPlayer;
 
-        this.playTurn(componentToAttack, attacker, this.board.playerCards.cardTwo);
-        this.changeTurn.next();
-        return;
+          this.playTurn(componentToAttack, attacker, this.board.playerCards.cardTwo);
+          return;
+        }
+
       }
       if (this.board.playerCards.cardThree) {
-        const componentToAttack = this.cardThreePlayer;
-        this.playTurn(componentToAttack , attacker, this.board.playerCards.cardThree);
-        this.changeTurn.next();
-        return;
+        if(!this.board.playerCards.cardThree.death){
+          const componentToAttack = this.cardThreePlayer;
+          this.playTurn(componentToAttack , attacker, this.board.playerCards.cardThree);
+          return;
+        }
+
       }
     }
 

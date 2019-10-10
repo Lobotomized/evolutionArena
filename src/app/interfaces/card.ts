@@ -22,7 +22,7 @@ export function CardFactory() {
         restMax: 5,
         defense: 50,
         restCurrent: 0,
-        image: '1',
+        image: 'interested_crunch',
         special: 'Attacks',
         onTurn: false,
         death: false,

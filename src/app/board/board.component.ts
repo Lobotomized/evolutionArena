@@ -267,7 +267,7 @@ export class BoardComponent implements OnInit {
   }
 
   private async AI() {
-    //Repeated Code to be fixed
+    // Repeated Code to be fixed
     const attacker = this.getActiveCard();
     const yourTurn = Object.keys(this.board.enemyCards).find((card) => {
       if (this.board.enemyCards[card] && !this.board.enemyCards[card].death) {

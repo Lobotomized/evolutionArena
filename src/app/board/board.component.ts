@@ -75,11 +75,17 @@ export class BoardComponent implements OnInit {
 
   private attack(attacker: Card, defender: Card, miss?: boolean ) {
     if (miss) {
+       attacker.restCurrent = 0;
        return;
     }
     attacker.restCurrent = 0;
     defender.takeDamage(attacker.attack, attacker);
     this.checkDeath();
+  }
+
+  private heal(healer: Card, defender: Card) {
+    healer.restCurrent = 0;
+    defender.takeDamage(-healer.attack, healer);
   }
 
   private rest(attacker: Card) {
@@ -90,8 +96,10 @@ export class BoardComponent implements OnInit {
     if (Object.keys(this.board.playerCards)) {
       Object.keys(this.board.playerCards).forEach((card) => {
         if (this.board.playerCards[card]) {
-          if (this.board.playerCards[card].health <= 0) {
+          if (this.board.playerCards[card].health <= 0 && !this.board.playerCards[card].death) {
             this.board.playerCards[card].die();
+          } else if (this.board.playerCards[card].health <= 0) {
+            this.removeCard(card, false);
           }
         }
       });
@@ -100,8 +108,10 @@ export class BoardComponent implements OnInit {
     if (Object.keys(this.board.enemyCards)) {
       Object.keys(this.board.enemyCards).forEach((card) => {
         if (this.board.enemyCards[card]) {
-          if (this.board.enemyCards[card].health <= 0) {
+          if (this.board.enemyCards[card].health <= 0 && !this.board.enemyCards[card].death) {
             this.board.enemyCards[card].die();
+          } else if (this.board.enemyCards[card].health <= 0) {
+            this.removeCard(card, true);
           }
         }
       });
@@ -143,7 +153,7 @@ export class BoardComponent implements OnInit {
 
   private makeInactive() {
     for (const card of Object.keys(this.board.playerCards)) {
-      if (this.board.enemyCards[card]) {
+      if (this.board.playerCards[card]) {
         this.board.playerCards[card].onTurn = false;
       }
     }

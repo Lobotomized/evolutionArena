@@ -1,8 +1,9 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core';
-import { Card, CardFactory } from '../interfaces/card';
+import { Card, CardFactory, EnemyFactory } from '../interfaces/card';
 import { Board } from '../interfaces/board';
 import { CardComponent } from '../card/card.component';
 import { delay } from '../helpers/delay';
+import { isDefaultChangeDetectionStrategy } from '@angular/core/src/change_detection/constants';
 
 
 
@@ -44,12 +45,16 @@ export class BoardComponent implements OnInit {
   constructor() {
     const card: Card  = CardFactory();
     const cardTwo: Card  = CardFactory();
-    const cardEvil: Card  = CardFactory();
-    const cardEvilTwo: Card  = CardFactory();
+    const cardThree: Card  = CardFactory();
+    const cardEvil: Card  = EnemyFactory();
+    const cardEvilTwo: Card  = EnemyFactory();
+    const cardEvilThree: Card  = EnemyFactory();
     this.addPlayerCard(card, 'cardOne');
     this.addPlayerCard(cardTwo, 'cardTwo');
+    this.addPlayerCard(cardThree, 'cardThree');
     this.addEnemyCard(cardEvil, 'cardOne');
     this.addEnemyCard(cardEvilTwo, 'cardTwo');
+    this.addEnemyCard(cardEvilThree, 'cardThree');
     this.changeTurn = this.giveTurn();
     this.changeTurn.next();
   }
@@ -85,7 +90,11 @@ export class BoardComponent implements OnInit {
 
   private heal(healer: Card, defender: Card) {
     healer.restCurrent = 0;
-    defender.takeDamage(-healer.attack, healer);
+    defender.getHealed(healer.attack, healer);
+  }
+
+  private buffArmor(buffer: Card, defender: Card) {
+    defender.armorBuff(buffer.attack, buffer);
   }
 
   private rest(attacker: Card) {
@@ -191,11 +200,19 @@ export class BoardComponent implements OnInit {
       if (!attacker.death) {
         if  (attacker.restCurrent >= attacker.restMax) {
           const random = Math.random();
-          if (random >= defender.defense / 100) {
-            await component.attackedAnimation(() => { this.attack(attacker, defender); });
-          } else {
-            await component.missAnimation(() => { this.attack(attacker, defender, true); });
+
+          if (!attacker.moveType || attacker.moveType === 'Attack') {
+            if (random >= defender.defense / 100) {
+              await component.attackedAnimation(() => { this.attack(attacker, defender); });
+            } else {
+              await component.missAnimation(() => { this.attack(attacker, defender, true); });
+            }
+          } else if (attacker.moveType === 'Heal') {
+            await component.healAnimation(() => { this.heal(attacker, defender); });
+          } else if (attacker.moveType === 'BuffArmor') {
+            await component.buffAnimation(() => {this.buffArmor(attacker, defender); });
           }
+
         } else {
           await attackerComponent.restAnimation(() => { this.rest(attacker); });
         }

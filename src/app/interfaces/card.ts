@@ -62,7 +62,7 @@ export class InterestedCrunch extends Card {
         super();
         this.attack = 10;
         this.health = 25;
-        this.maxHealth = 25;
+        this.maxHealth = 45;
         this.restMax = 0;
         this.restCurrent = 0;
         this.image = 'interested_crunch';
@@ -79,10 +79,10 @@ export class YoungSasho extends Card {
 
     constructor() {
         super();
-        this.attack = 10;
+        this.attack = 5;
         this.health = 25;
         this.maxHealth = 25;
-        this.restMax = 1;
+        this.restMax = 0;
         this.restCurrent = 0;
         this.image = 'early_sasho';
         this.special = 'Младият Сашо си почива по-бързо';
@@ -133,7 +133,7 @@ export class NatureSyiana extends Card {
 
     constructor() {
         super();
-        this.attack = 3;
+        this.attack = 4;
         this.health = 25;
         this.maxHealth = 25;
         this.restMax = 0;
@@ -147,18 +147,56 @@ export class NatureSyiana extends Card {
     }
 }
 
+export class MagicTengy extends Card {
+
+    constructor() {
+        super();
+        this.attack = 15;
+        this.health = 50;
+        this.maxHealth = 50;
+        this.restMax = 2;
+        this.restCurrent = 0;
+        this.image = 'magic_tengy';
+        this.special = 'Магическият Тенги вдига защитите.';
+        this.moveType = 'BuffArmor';
+        this.onTurn = false;
+        this.death = false;
+        this.defense = 10;
+    }
+}
+
+export class SneakyAlex extends Card {
+
+    constructor() {
+        super();
+        this.attack = 10;
+        this.health = 25;
+        this.maxHealth = 25;
+        this.restMax = 1;
+        this.restCurrent = 0;
+        this.image = 'sneaky_alex';
+        this.special = 'Коварният Алекс не пропуска.';
+        this.moveType = 'NeverMiss';
+        this.onTurn = false;
+        this.death = false;
+        this.defense = 10;
+    }
+}
+
 export function CardFactory() {
     let card: Card;
     const random = Math.random();
 
-    if (random > 7 / 10) {
+    if (random > 8 / 10) {
         card = new NatureSyiana();
-    } else if (random > 5 / 10) {
+    } else if (random > 6 / 10) {
         card = new MaskedAsen();
-    } else if (random > 3 / 10) {
+    } else if (random > 4 / 10) {
         card = new NakedGohi();
-    } else {
+    } else if (random > 2 / 10) {
         card = new InterestedCrunch();
+    } else {
+        card = new MagicTengy();
     }
     return card;
 }
@@ -172,7 +210,7 @@ export function EnemyFactory() {
     } else if (random > 4 / 10) {
         card = new MaskedAsen();
     } else {
-        card = new NakedGohi();
+        card = new SneakyAlex();
     }
 
     return card;

@@ -1,50 +1,65 @@
 
-<div *ngIf="properties && state === 'normal'" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn, 'bgDeath':properties.death }" class="container">
+<div *ngIf="properties && state === 'normal'" [ngClass]="{'bgActive': properties.onTurn, 'bgDefault': !properties.onTurn, 'bgDeath':properties.death }" class="allContainers container">
     
         <img src="../../assets/images/{{properties.image}}.jpg" class="image" alt="">
     
         <div class="props">
-            <span >Power : {{properties.attack}}</span> <br> <span >Defense : {{properties.defense}}</span>
+            <span><img class="icon-big" src="../../assets//images/icons/force.svg" alt=""> : {{properties.attack}}</span> <br>            
+            <span>        
+                <div class="restBar">
+                            <span><img class="icon" src="../../assets//images/icons/rest.svg" alt="">: {{properties.restCurrent}} / {{properties.restMax}}</span>
+                        <div class="rest" [style.width.%]="(math.floor((properties.restCurrent  / properties.restMax) * 100))"></div>
+                </div>
+            </span>
         </div>
         
         <div class="border-left props">
-            <span>Hp : {{properties.health}} / {{properties.maxHealth}}</span> <br> <span>Rest : {{properties.restCurrent}} / {{properties.restMax}}</span>
+            <span><img class="icon-big" src="../../assets//images/icons/shield.svg" alt=""> : {{properties.defense}}</span>
+    
+            <span><div class="hpBar"> 
+                        
+                        <span> <img class="icon" src="../../assets//images/icons/heart.svg" alt=""> : {{properties.health}} / {{properties.maxHealth}}</span>
+                        <div class="hp" [style.width.%]="(math.floor((properties.health  / properties.maxHealth) * 100))" ></div>
+                </div>
+            </span>
         </div>
         <p class="special">{{properties.special}} </p>
+
+
+
+
+</div>
+
+<div *ngIf="!properties" class="allContainers empty">
     
 </div>
 
 
-<div *ngIf="!properties" class="empty">
-    
-</div>
-
-
 
     
 
     
-    <div *ngIf="properties && state === 'damage'" style="background-color:red" class="effectContainer container">
-                            <h1>Damaged</h1>
+    <div *ngIf="properties && state === 'damage'" style="background-color:#FF2A17" class="effectContainer allContainers  container">
+                            <h1>Удар</h1>
     </div>
 
-    <div *ngIf="properties && state === 'rest'" style="background-color:#79eafc" class="effectContainer container">
-        <h1>Rest</h1>
+    <div *ngIf="properties && state === 'rest'" style="background-color:#79eafc" class="effectContainer allContainers container">
+        <h1>Почивка</h1>
 </div>
     
-    <div *ngIf="properties && state === 'miss'" style="background-color:yellow" class="effectContainer container">
-        <h1>Missed</h1>
+    <div *ngIf="properties && state === 'miss'" style="background-color:#99684B" class="effectContainer allContainers container">
+        <h1>Пропуск</h1>
     </div>
     
-    <div *ngIf="properties && state === 'heal'" style="background-color:lightgreen" class="effectContainer container">
+    <div *ngIf="properties && state === 'heal'" style="background-color:#57FF72" class="effectContainer allContainers container">
         <h1>Healed</h1>
     </div>
     
-    <div *ngIf="properties && state === 'buff'" style="background-color:lightblue" class="effectContainer container">
-        <h1>Buffed</h1>
+    <div *ngIf="properties && state === 'buff'" style="background-color:#57FF72" class="effectContainer allContainers container">
+        <h1>Благословия</h1>
     </div>
     
-    <div *ngIf="properties && state === 'curse'" style="background-color: rebeccapurple" class="effectContainer container">
-        <h1>Cursed</h1>
+    <div *ngIf="properties && state === 'curse'" style="background-color: #57FF72" class="effectContainer allContainers container">
+        <h1>Проклятие</h1>
     </div>
     

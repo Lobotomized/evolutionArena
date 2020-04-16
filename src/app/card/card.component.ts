@@ -8,6 +8,7 @@ import {delay} from '../helpers/delay';
 export class CardComponent implements OnInit {
   @Input() properties = null;
   state = 'normal';
+  math = Math;
 
   constructor() {
   }

@@ -3,8 +3,6 @@ import { Card, CardFactory, EnemyFactory } from '../interfaces/card';
 import { Board } from '../interfaces/board';
 import { CardComponent } from '../card/card.component';
 import { delay } from '../helpers/delay';
-import { isDefaultChangeDetectionStrategy } from '@angular/core/src/change_detection/constants';
-
 
 
 @Component({
@@ -58,15 +56,13 @@ export class BoardComponent implements OnInit {
     this.changeTurn = this.giveTurn();
     this.changeTurn.next();
   }
-
+// Pure interface methods
   private addPlayerCard(card: Card, position: string) {
     this.board.playerCards[position] = card;
-    this.checkDeath();
   }
 
   private addEnemyCard(card: Card, position: string) {
     this.board.enemyCards[position] = card;
-    this.checkDeath();
   }
 
   private removeCard(position: string, enemy: boolean) {
@@ -77,24 +73,66 @@ export class BoardComponent implements OnInit {
     }
   }
 
-
-  private attack(attacker: Card, defender: Card, miss?: boolean ) {
-    if (miss) {
-       attacker.restCurrent = 0;
-       return;
+  private getComponentByCard(card: Card) {
+    const position = this.getCardPosition(card);
+    switch (position.key) {
+      case 'cardOne':
+        if (position.player) {
+          return this.cardOnePlayer;
+        } else {
+          return this.cardOneEnemy;
+        }
+      case 'cardTwo':
+          if (position.player) {
+            return this.cardTwoPlayer;
+          } else {
+            return this.cardTwoEnemy;
+          }
+      case 'cardThree':
+          if (position.player) {
+            return this.cardThreePlayer;
+          } else {
+            return this.cardThreeEnemy;
+          }
     }
+  }
+
+  private animationToLogic(component, anim, logic, defender, attacker) {
+    return new Promise((resolve, reject) => {
+      component[anim](() => {
+        if (defender[logic]) {
+          defender[logic](attacker.attack, attacker);
+        }
+        resolve();
+      });
+    });
+  }
+
+  private async attack(attacker: Card, defender: Card , defenderComponent: CardComponent, attackerComponent: CardComponent) {
     attacker.restCurrent = 0;
-    defender.takeDamage(attacker.attack, attacker);
+    if (attacker.moveType === 'Attack' || !attacker.moveType) {
+      const random = Math.random();
+
+      if (random <= defender.defense / 100) {
+         await this.animationToLogic(defenderComponent, 'missAnimation', null, defender, attacker);
+         return;
+      }
+    }
+    switch (attacker.moveType) {
+      case 'Attack':
+          await this.animationToLogic(defenderComponent, 'attackedAnimation', 'takeDamage', defender, attacker);
+          break;
+      case 'Heal':
+        await this.animationToLogic(defenderComponent, 'healAnimation', 'getHealed', defender, attacker);
+        break;
+      case 'BuffArmor':
+          await this.animationToLogic(defenderComponent, 'buffAnimation', 'armorBuff', defender, attacker);
+          break;
+      default:
+          await this.animationToLogic(defenderComponent, 'attackedAnimation', 'takeDamage', defender, attacker);
+          break;
+    }
     this.checkDeath();
-  }
-
-  private heal(healer: Card, defender: Card) {
-    healer.restCurrent = 0;
-    defender.getHealed(healer.attack, healer);
-  }
-
-  private buffArmor(buffer: Card, defender: Card) {
-    defender.armorBuff(buffer.attack, buffer);
   }
 
   private rest(attacker: Card) {
@@ -127,39 +165,6 @@ export class BoardComponent implements OnInit {
     }
   }
 
-
-
-
-  private *giveTurn() {
-    if (Object.keys(this.board.playerCards)) {
-      for (const card of Object.keys(this.board.playerCards)) {
-        const importantCard = this.board.playerCards[card];
-        if (importantCard) {
-          this.makeInactive();
-          if (!importantCard.death) {
-            importantCard.onTurn = true;
-            yield;
-          }
-        }
-      }
-    }
-    if (Object.keys(this.board.enemyCards)) {
-      for (const card of Object.keys(this.board.enemyCards)) {
-        const importantCard = this.board.enemyCards[card];
-
-        if (importantCard) {
-          this.makeInactive();
-          if (!importantCard.death) {
-            importantCard.onTurn = true;
-            yield;
-          }
-        }
-      }
-    }
-
-    yield;
-  }
-
   private makeInactive() {
     for (const card of Object.keys(this.board.playerCards)) {
       if (this.board.playerCards[card]) {
@@ -173,7 +178,6 @@ export class BoardComponent implements OnInit {
       }
     }
   }
-
   private getActiveCard() {
 
     for (const card of Object.keys(this.board.playerCards)) {
@@ -194,39 +198,62 @@ export class BoardComponent implements OnInit {
     }
   }
 
+    // Turn Generator
+
+    private *giveTurn() {
+      while (true) {
+        if (Object.keys(this.board.playerCards)) {
+          for (const card of Object.keys(this.board.playerCards)) {
+            const importantCard = this.board.playerCards[card];
+            if (importantCard) {
+              this.makeInactive();
+              if (!importantCard.death) {
+                importantCard.onTurn = true;
+                yield;
+              }
+            }
+          }
+        }
+        if (Object.keys(this.board.enemyCards)) {
+          for (const card of Object.keys(this.board.enemyCards)) {
+            const importantCard = this.board.enemyCards[card];
+            if (importantCard) {
+              this.makeInactive();
+              if (!importantCard.death) {
+                importantCard.onTurn = true;
+                yield;
+              }
+            }
+          }
+        }
+      }
+    }
+
   private async playTurn(component: CardComponent, attackerComponent: CardComponent, attacker: Card, defender: Card) {
     const doneChecker =  await this.changeTurn.next();
+
     if (!doneChecker.done) {
       if (!attacker.death) {
         if  (attacker.restCurrent >= attacker.restMax) {
-          const random = Math.random();
-
-          if (!attacker.moveType || attacker.moveType === 'Attack') {
-            if (random >= defender.defense / 100) {
-              await component.attackedAnimation(() => { this.attack(attacker, defender); });
-            } else {
-              await component.missAnimation(() => { this.attack(attacker, defender, true); });
-            }
-          } else if (attacker.moveType === 'Heal') {
-            await component.healAnimation(() => { this.heal(attacker, defender); });
-          } else if (attacker.moveType === 'BuffArmor') {
-            await component.buffAnimation(() => {this.buffArmor(attacker, defender); });
-          }
-
+              await  this.attack(attacker, defender,component,attackerComponent)
         } else {
           await attackerComponent.restAnimation(() => { this.rest(attacker); });
         }
+        await this.checkDeath();
+
+        if (attacker.death) {
+          await this.changeTurn.next();
+        }
 
         await this.AI();
-        await this.checkDeath();
         return;
       } else {
-        await this.AI();
         await this.checkDeath();
+        await this.changeTurn.next();
+        await this.AI();
         return;
       }
     } else {
-      this.changeTurn = await this.giveTurn();
       await this.changeTurn.next();
       return;
     }
@@ -269,29 +296,7 @@ export class BoardComponent implements OnInit {
     return {key: 'none', player: false};
   }
 
-  private getComponentByCard(card: Card) {
-    const position = this.getCardPosition(card);
-    switch (position.key) {
-      case 'cardOne':
-        if (position.player) {
-          return this.cardOnePlayer;
-        } else {
-          return this.cardOneEnemy;
-        }
-      case 'cardTwo':
-          if (position.player) {
-            return this.cardTwoPlayer;
-          } else {
-            return this.cardTwoEnemy;
-          }
-      case 'cardThree':
-          if (position.player) {
-            return this.cardThreePlayer;
-          } else {
-            return this.cardThreeEnemy;
-          }
-    }
-  }
+
 
   private async AI() {
     // Repeated Code to be fixed
@@ -343,6 +348,7 @@ export class BoardComponent implements OnInit {
   // Public Methods
 
   cardClick(defender: Card, clickedComponent: CardComponent) {
+
     if (this.openForClicks) {
       const attacker = this.getActiveCard();
       const yourTurn = Object.keys(this.board.playerCards).find((card) => {

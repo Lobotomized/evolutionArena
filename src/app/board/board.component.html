@@ -10,7 +10,7 @@
     <div class="player innerContainer">
         <app-card #cardOnePlayer (click)="cardClick(board.playerCards.cardOne,cardOnePlayer)" class="card" [properties]="board.playerCards.cardOne"></app-card>
         <app-card #cardTwoPlayer (click)="cardClick(board.playerCards.cardTwo,cardTwoPlayer)" class="card" [properties]="board.playerCards.cardTwo"></app-card>
-        <app-card #cardThreePlayer (click)="cardClick(board.enemyCards.cardThree,cardThreePlayer)" class="card" [properties]="board.playerCards.cardThree"></app-card>
+        <app-card #cardThreePlayer (click)="cardClick(board.playerCards.cardThree,cardThreePlayer)" class="card" [properties]="board.playerCards.cardThree"></app-card>
     </div>
 
 </div>
